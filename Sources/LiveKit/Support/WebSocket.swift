@@ -45,8 +45,10 @@ final class WebSocket: NSObject, @unchecked Sendable, Loggable, AsyncSequence, U
         config.shouldUseExtendedBackgroundIdleMode = true
         config.networkServiceType = .callSignaling
         #if os(iOS) || os(visionOS)
-        /// https://developer.apple.com/documentation/foundation/urlsessionconfiguration/improving_network_reliability_using_multipath_tcp
-        config.multipathServiceType = .handover
+        /// Era override: Disable multipath TCP to prevent WebSocket drops caused by
+        /// QUIC/Alt-Svc cache conflicts with the LiveKit signaling server.
+        /// Original value was .handover — see https://github.com/Era-Laboratories/client-sdk-swift
+        config.multipathServiceType = .none
         #endif
         return URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }()
